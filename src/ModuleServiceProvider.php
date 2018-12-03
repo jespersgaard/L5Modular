@@ -2,8 +2,9 @@
 
 namespace ArtemSchander\L5Modular;
 
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+
+use Illuminate\Filesystem\Filesystem;
 
 class ModuleServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,7 @@ class ModuleServiceProvider extends ServiceProvider
                 $helper = app_path().'/Modules/'.$module.'/helper.php';
                 $views  = app_path().'/Modules/'.$module.'/Views';
                 $trans  = app_path().'/Modules/'.$module.'/Translations';
+                $migrations  = app_path().'/Modules/'.$module.'/Migrations';
 
                 if ($this->files->exists($helper)) {
                     include_once $helper;
@@ -44,6 +46,9 @@ class ModuleServiceProvider extends ServiceProvider
                 }
                 if ($this->files->isDirectory($trans)) {
                     $this->loadTranslationsFrom($trans, $module);
+                }
+                if ($this->files->isDirectory($migrations) && method_exists($this, 'loadMigrationsFrom')) {
+                    $this->loadMigrationsFrom($migrations);
                 }
             }
         }
