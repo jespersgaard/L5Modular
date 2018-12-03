@@ -20,5 +20,12 @@
             "ArtemSchander\\L5Modular\\": "src/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ArtemSchander\\L5Modular\\ModuleServiceProvider"
+            ]
+        }
+    }
 }

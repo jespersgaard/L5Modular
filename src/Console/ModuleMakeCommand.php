@@ -6,6 +6,10 @@ use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
+use Illuminate\Support\Composer;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Database\Migrations\MigrationCreator;
+
 class ModuleMakeCommand extends GeneratorCommand
 {
 
@@ -43,6 +47,33 @@ class ModuleMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $currentStub;
+    
+    /**
+     * The migration creator instance.
+     *
+     * @var \Illuminate\Database\Migrations\MigrationCreator
+     */
+    protected $migrationCreator;
+    /**
+     * The Composer instance.
+     *
+     * @var \Illuminate\Support\Composer
+     */
+    protected $composer;
+    
+    /**
+     * Create a new migration install command instance.
+     *
+     * @param  \Illuminate\Database\Migrations\MigrationCreator  $creator
+     * @param  \Illuminate\Support\Composer  $composer
+     * @return void
+     */
+    public function __construct(FileSystem $files)
+    {
+        parent::__construct($files);
+        $this->migrationCreator = new MigrationCreator($this->files);
+        $this->composer = new Composer($this->files);
+    }
 
 
     /**
@@ -97,7 +128,24 @@ class ModuleMakeCommand extends GeneratorCommand
             // without hacky studly_case function
             // foo-bar results in foo-bar and not in foo_bar
             $table = str_plural(snake_case(studly_case($this->getNameInput())));
-            $this->call('make:migration', ['name' => "create_{$table}_table", '--create' => $table]);
+            $name = "create_{$table}_table";
+            
+            if ($this->version < 530) {
+                
+                $this->call('make:migration', ['name' => $name, '--create' => $table]);
+            } else {
+                
+                
+                $path = app_path().'/Modules/'.studly_case($this->getNameInput()).'/Migrations';
+                
+                $this->files->makeDirectory($path);
+                
+                $file = $this->migrationCreator->create($name, $path, $table, true);
+                                
+                $this->info("<info>Created Migration:</info> {$file}");
+                
+                $this->composer->dumpAutoloads();
+            }
         }
 
         $this->info($this->type.' created successfully.');
