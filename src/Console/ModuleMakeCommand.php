@@ -62,6 +62,13 @@ class ModuleMakeCommand extends GeneratorCommand
     protected $composer;
     
     /**
+     * The module it's base path
+     *
+     * @var string
+     */
+    protected $moduleBasePath = '';
+    
+    /**
      * Create a new migration install command instance.
      *
      * @param  \Illuminate\Database\Migrations\MigrationCreator  $creator
@@ -71,6 +78,7 @@ class ModuleMakeCommand extends GeneratorCommand
     public function __construct(FileSystem $files)
     {
         parent::__construct($files);
+        
         $this->migrationCreator = new MigrationCreator($this->files);
         $this->composer = new Composer($this->files);
     }
@@ -85,9 +93,10 @@ class ModuleMakeCommand extends GeneratorCommand
     {
         $app = app();
         $this->version = (int) str_replace('.', '', $app->version());
+        $this->moduleBasePath = app_path('Modules/'.studly_case($this->getNameInput()));
 
         // check if module exists
-        if ($this->files->exists(app_path().'/Modules/'.studly_case($this->getNameInput()))) {
+        if ($this->files->exists($this->moduleBasePath)) {
             return $this->error($this->type.' already exists!');
         }
 
@@ -121,8 +130,6 @@ class ModuleMakeCommand extends GeneratorCommand
         // Create Helper file
         $this->generate('helper');
 
-
-
         if (! $this->option('no-migration')) {
 
             // without hacky studly_case function
@@ -135,15 +142,10 @@ class ModuleMakeCommand extends GeneratorCommand
                 $this->call('make:migration', ['name' => $name, '--create' => $table]);
             } else {
                 
+                $path = $this->moduleBasePath . '/Migrations';
                 
-                $path = app_path().'/Modules/'.studly_case($this->getNameInput()).'/Migrations';
-                
-                $this->files->makeDirectory($path);
-                
-                $file = $this->migrationCreator->create($name, $path, $table, true);
-                                
-                $this->info("<info>Created Migration:</info> {$file}");
-                
+                $this->files->isDirectory($path) or $this->files->makeDirectory($path);
+                $this->migrationCreator->create($name, $path, $table, true);
                 $this->composer->dumpAutoloads();
             }
         }
