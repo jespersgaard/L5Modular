@@ -26,17 +26,25 @@ Run the following command from your projects root
 ```shell
 composer require artem-schander/l5-modular
 ```
+
+#### Laravel 5.5+
+This package supports package discovery.
+
+#### Laravel 5.4-
 Once this operation is complete, simply add the service provider to your project's `config/app.php` and you're done.
 
 #### Service Provider
 ```php
 ArtemSchander\L5Modular\ModuleServiceProvider::class,
 ```
-
+---
 <a name="getting-started"></a>
 ## Getting started
 
 The built in Artisan command `php artisan make:module name [--no-migration] [--no-translation]` generates a ready to use module in the `app/Modules` folder and a migration/translation if necessary.
+
+###### Migrations
+The generator will generate a migration inside the module folder on Laravel 5.3+. It will be created in the default migrations folder on lower versions.
 
 Since version 1.3.0 you can generate modules named with more than one word, like `foo-bar`.
 
