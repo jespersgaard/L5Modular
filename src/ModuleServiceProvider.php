@@ -2,9 +2,9 @@
 
 namespace ArtemSchander\L5Modular;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 
-use Illuminate\Filesystem\Filesystem;
 
 class ModuleServiceProvider extends ServiceProvider
 {
