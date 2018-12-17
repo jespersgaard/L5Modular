@@ -26,6 +26,6 @@
                 "ArtemSchander\\L5Modular\\ModuleServiceProvider"
             ]
         }
-    }
+    },
     "minimum-stability": "dev",
 }
